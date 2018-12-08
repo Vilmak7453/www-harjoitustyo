@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	h1=title
+
+	div(class="section col")
+		ul
+			each score in score_list
+				li
+					p #{score.value}: #{(score.user !== null ?  score.user.name : "Unknown")}, #{score.date_formatted}
+			else
+				li There are no scores
