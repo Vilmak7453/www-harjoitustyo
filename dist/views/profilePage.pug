@@ -1,0 +1,27 @@
+extends layout
+
+block head
+	script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
+
+block content
+	div(id="profile", class="container")
+		form(method='GET' action='/profile/updateProfile')
+			h1=user.name
+				button(class="btn-small waves-effect waves-light orange" type="submit" style="margin:1rem") 
+					<i class="material-icons">edit</i>
+	
+		p="Sähköposti: " + user.email
+		p Paras tulos: {{ highscore }}
+
+		div(class="section row")
+			div(class="flow-text col m6 s12")
+				ul(class="collection with-header" style="font-size:1rem")
+					li(class="collection-header")
+						h6 Omat tulokset
+					score-component(
+						v-for="item in scores", 
+						v-bind:score="item", 
+						v-bind:key="item.id"
+					)
+
+	script(type="text/javascript", src="../profile.js") 

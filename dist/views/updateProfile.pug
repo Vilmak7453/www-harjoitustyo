@@ -1,0 +1,29 @@
+extends layout
+
+block content
+
+	div(class="container")
+
+		h1=title
+
+		div(class="col m4")
+			form(method='POST' action='/profile/updateProfile')
+				div.form-group
+					label(for='name') K&auml;ytt&auml;j&auml;tunnus:
+					input#name.form-control(type='text' placeholder='Gamer88' name='name' required='true' value=(undefined === name ? '' : name))
+				div.form-group
+					label(for='email') S&auml;hk&ouml;posti:
+					input#email.form-control(type='text' placeholder='esimerkki@email.com' name='email' required='true' value=(undefined===email ? '' : email))
+				div.form-group
+					label(for='password1') Uusi salasana:
+					input#password1.form-control(type='text' placeholder='1-20 merkkiä' name='password1')
+					label(for='password2') Uusi salasana uudelleen:
+					input#password2.form-control(type='text' placeholder='1-20 merkkiä' name='password2')
+				div.form-group
+					label(for='oldPassword') Vanha salasana tietojen tallentamiseksi:
+					input#oldPassword.form-control(type='text' name='oldPassword' required="true")
+				button.btn.btn-primary(type='submit') Tallenna
+			if errors 
+				ul
+					for error in errors
+						li!= error.msg

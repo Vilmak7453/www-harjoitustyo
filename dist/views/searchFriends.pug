@@ -1,0 +1,29 @@
+extends layout
+
+block content
+
+	div(id="search", class="container")
+
+		h1=title
+
+		div(class="section row")
+			div(class="input-field")
+				input(class="col", type="text", v-model="searchKey") K&auml;ytt&auml;j&auml;tunnus
+				span(class="col btn", v-on:click="search") Hae
+
+		div(class="section row")
+			div(class="flow-text col offset-m3 m6 s12")
+				ul(class="collection with-header")
+					li(class="collection-header") 
+						h6 Hakutulokset
+					if(#{results.length} > 0)
+						result-component(
+							v-for="res in results", 
+							v-bind:result="res", 
+							v-bind:key="res.id",
+							v-on:addFriend="addFriend(res.userID)"
+						)
+					else
+						p Yht&auml;&auml;n k&auml;ytt&auml;j&auml;&auml; ei l&ouml;ydetty!
+	
+	script(type="text/javascript", src="../searchFriends.js")

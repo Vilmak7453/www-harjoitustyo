@@ -1,8 +1,8 @@
+"use strict";
 //This game is based on Phaser's official tutorial and uses its assets.
 //https://phaser.io/tutorials/making-your-first-phaser-3-game (visited 14.11.2018)
 
 import request from 'superagent';
-"use strict";
 
 var config = {
     type: Phaser.AUTO,
@@ -147,11 +147,5 @@ function hitBomb(player, bomb) {
     .post("/game/saveScore")
     .type('json')
     .send({ score: score })
-    .then(
-      function(error) {
-        console.log("we have error", error);
-    },
-      function(ok) {
-        console.log("We have ok", ok);
-    });
+    .end();
 }
