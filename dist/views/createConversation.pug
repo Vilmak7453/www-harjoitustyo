@@ -1,0 +1,30 @@
+extends layout
+
+block head
+	link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css")
+	script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
+
+block content
+
+	div(class="container")
+
+		h1=title
+
+		div(class="col s4")
+			form(method='POST' action='/chat/createConversation')
+				div.form-group
+					label(for='groupName') Ryhm&auml;n nimi:
+					input#groupName.form-control(type='text' placeholder="Team Best" name='groupName' required='true' value=(undefined===name ? '' : name))
+
+				div.form-group
+					label(for='groupers') Valitse kaverisi:
+					select#groupers.form-control(name='groupers' size="5"  required="true" multiple)
+						each friend in friends
+							option(value=(friend.id)) #{friend.name}
+
+				button.btn.btn-primary(type='submit') Luo ryhm&auml;
+
+			if errors 
+				ul
+					for error in errors
+						li!= error.msg

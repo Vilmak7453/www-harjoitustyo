@@ -18,4 +18,16 @@ module.exports = [{
     filename: 'searchFriends.js',
     path: path.resolve(__dirname, 'dist')
   }
+},{
+  entry: './scripts/clients/friendOverview.js',
+  output: {
+    filename: 'friendOverview.js',
+    path: path.resolve(__dirname, 'dist')
+  }
+},{
+  entry: './scripts/clients/chat.js',
+  output: {
+    filename: 'chat.js',
+    path: path.resolve(__dirname, 'dist')
+  }
 }];

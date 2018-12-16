@@ -1,6 +1,5 @@
 "use strict";
 var mongoose = require('mongoose');
-var moment = require('moment-timezone');
 
 var Schema = mongoose.Schema;
 

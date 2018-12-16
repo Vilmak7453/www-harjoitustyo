@@ -61,10 +61,9 @@ exports.getUsersScores = function(req, res, next) {
 		  if(err) { console.log(err); res.send(); }
 		  var newlist = [];
 		  list_score.forEach(function(score) {
-		  	score.date = score.date_formatted;
-		  	newlist.push(score);
+		  	newlist.push({value: score.value,
+		  				date: score.date_formatted});
 		  });
-		  console.log(newlist);
 		  res.send(newlist);
 		});
 }

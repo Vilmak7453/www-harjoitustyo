@@ -4,7 +4,9 @@ import request from 'superagent';
 Vue.component("result-component", {
 	props: ['result'],
 	template: '<li class="collection-item">' + 
-			'<p> {{result.name}}</p></li>'
+			'<div><a type="text">{{result.name}}</a>' +
+			'<a class="secondary-content blue-text text-darken-1 white small" v-on:click="$emit(\'add-friend\')">' +
+			'<i class="material-icons">person_add</i></a></div></li>'
 })
 
 var searchApp = new Vue({
@@ -12,27 +14,42 @@ var searchApp = new Vue({
 	data: {
 		results: [],
 		searchKey: "",
+		errortext: ""
 	},
 	methods: {
 		search: function() {
+
+			this.errortext = "";
 			request
 		   	.get('/friend/searchFriendsWithName')
-		   	.send({key: searchKey})
+		   	.query({key: this.searchKey})
 		   	.then(res => {
-		      console.log(res.body);
-		      for(var i = 0; i < res.body.length; i++) {
-		      	this.results.push({
-					name: res.body[i].name,
-					userID: res.body[i]._id
-				});
-		      }
+		   		this.results = [];
+		    	console.log(res.body);
+		    	if(res.body !== null)
+			    	for(var i = 0; i < res.body.length; i++) {
+			      		this.results.push({
+							name: res.body[i].name,
+							userID: res.body[i]._id
+						});
+			    	}
 		   	})
 		   	.catch(err => {
 		      console.log("Error retrieving users " + err.message);
 	   		});
 		},
-		addFriend: function(useID) {
-			console.log("Lisää kaveri " + userID);
+		addFriend: function(result) {
+
+			request
+			.post("/friend/sendFriendRequest")
+			.type("json")
+			.send({userID: result.userID})
+			.then((res) => {
+				if(res.body.msg !== undefined) {
+		        	this.errortext = res.body.msg;
+		        	return;
+				}
+			});
 		}
 
 	}
