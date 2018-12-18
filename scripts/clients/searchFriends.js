@@ -25,7 +25,6 @@ var searchApp = new Vue({
 		   	.query({key: this.searchKey})
 		   	.then(res => {
 		   		this.results = [];
-		    	console.log(res.body);
 		    	if(res.body !== null)
 			    	for(var i = 0; i < res.body.length; i++) {
 			      		this.results.push({
@@ -46,6 +45,7 @@ var searchApp = new Vue({
 			.send({userID: result.userID})
 			.then((res) => {
 				if(res.body.msg !== undefined) {
+		        	this.search();
 		        	this.errortext = res.body.msg;
 		        	return;
 				}

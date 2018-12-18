@@ -9,7 +9,7 @@ exports.searchFriendsWithName = function(req, res, next) {
 
 	Friendship
 	.find({$or:[{user1: user._id}, {user2: user._id}]})
-	.where({accepted1: true, accepted2:true})
+	.where({accepted1: true})
 	.populate('user1 user2')
 	.exec(function(err, list_friendships) {
 		if(err) { console.log(err); res.send(); }

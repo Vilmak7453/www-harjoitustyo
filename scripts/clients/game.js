@@ -3,6 +3,7 @@
 //https://phaser.io/tutorials/making-your-first-phaser-3-game (visited 14.11.2018)
 
 import request from 'superagent';
+import metolib from '@fmidev/metolib';
 
 var config = {
     type: Phaser.AUTO,
@@ -144,8 +145,49 @@ function hitBomb(player, bomb) {
     player.anims.play("turn");
 
     request
-    .post("/game/saveScore")
-    .type('json')
-    .send({ score: score })
-    .end();
+    .get('/apiKey')
+    .then((res) => {
+      if(res.body.apikey === "" || res.body.apikey === undefined) {
+        request
+        .post("/game/saveScore")
+        .type('json')
+        .send({ score: score })
+        .end();
+      }
+      else {
+        var apiKey = res.body.apikey;
+        var wfsParser = new metolib.WfsRequestParser();
+
+        wfsParser.getData({
+          url: "https://data.fmi.fi/fmi-apikey/" + apiKey + "/wfs",
+          storedQueryId: "fmi::observations::weather::multipointcoverage",
+          requestParameter: "temperature",
+          sites: "Lappeenranta",
+          begin: new Date((new Date()).getTime() - 60*60*1000),
+          end: new Date(),
+          timestep: 60*60*1000,
+          callback: function(data, errors) {
+
+            if(errors === [])
+              console.log(errors);
+            else {
+              var timeValuePairs = data.locations[0].data.temperature.timeValuePairs;
+              var temperature;
+              var regex = RegExp("^[0-9.\-]+$");
+
+              for(var i = 0; i < timeValuePairs.length; i++) {
+                if(regex.test(timeValuePairs[i].value))
+                  temperature = timeValuePairs[i].value;
+              }
+
+              request
+              .post("/game/saveScore")
+              .type('json')
+              .send({ score: score, temp: temperature })
+              .end();
+            }
+          }
+        });
+      }
+    });
 }

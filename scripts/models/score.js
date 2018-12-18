@@ -8,7 +8,8 @@ var ScoreSchema = new Schema(
   {
   	user: {type: Schema.Types.ObjectId, ref: 'User', default: null},
   	value: {type: Number, require: true},
-    date: {type: Date, default: Date.now}
+    date: {type: Date, default: Date.now},
+    temperature: {type: Schema.Types.Decimal128, default: 0}
   }
 );
 

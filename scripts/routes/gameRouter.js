@@ -48,4 +48,5 @@ router.get("/removeAllScores", function(req, res, next) {
 	res.redirect("/game/scoreboard");
 });
 
+
 module.exports = router;

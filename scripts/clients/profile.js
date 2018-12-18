@@ -4,7 +4,7 @@ import request from 'superagent';
 Vue.component("score-component", {
 	props: ['score'],
 	template: '<li class="collection-item">' + 
-			'<p> {{score.value}}: {{score.date}}</p></li>'
+			'<p> {{score.value}} pistett&auml; {{score.temperature}}&deg;C klo {{score.date}}</p></li>'
 })
 
 var profileApp = new Vue({
@@ -18,13 +18,13 @@ var profileApp = new Vue({
 		request
 	   	.get('/profile/getUsersScores')
 	   	.then(res => {
-	   		console.log(res.body);
 	   		if(res.body !== undefined) {
 	   			this.highscore = res.body[0].value;
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.scores.push({
 						value: res.body[i].value,
-						date: res.body[i].date
+						date: res.body[i].date,
+						temperature: res.body[i].temperature
 					});
 		      	}
 		  	}

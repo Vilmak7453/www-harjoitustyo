@@ -3,14 +3,21 @@ var Score = require("../models/score");
 
 exports.score_save = function(req, res, next) {
 	var highScore = req.body.score;
-	var testResult = testScore(highScore);
 
-	if(testResult === true) {
+	if(testScore(highScore) === true) {
 		var user = req.body.user;
-		var score = new Score({
-			value: highScore,
-			user: user
-		});
+		var score;
+		if(req.body.temp === undefined || !testTemperature(req.body.temp))
+			score = new Score({
+				value: highScore,
+				user: user
+			});
+		else
+			score = new Score({
+				value: highScore,
+				user: user,
+				temperature: req.body.temp
+			});
 		score.save(
 			function (err) {
                 if (err) { 
@@ -42,6 +49,12 @@ function testScore(score) {
 	return regex.test(score);
 };
 
+function testTemperature(temp) {
+
+	var regex = RegExp("^[0-9.\-]+$");
+	return regex.test(temp);
+};
+
 exports.getHighscoreByUser = function(req, res, next) {
 	
 	Score.find({user: req.body.user})
@@ -62,7 +75,8 @@ exports.getUsersScores = function(req, res, next) {
 		  var newlist = [];
 		  list_score.forEach(function(score) {
 		  	newlist.push({value: score.value,
-		  				date: score.date_formatted});
+		  				date: score.date_formatted,
+		  				temperature: score.temperature.toString()});
 		  });
 		  res.send(newlist);
 		});

@@ -15,7 +15,8 @@ exports.register = [
       if(value !== req.body.password1)
         throw new Error("Salasanat eivät ole samat");
       else
-        return value;}).withMessage("Salasanat eivät ole samat"),
+        return value;
+    }).withMessage("Salasanat eivät ole samat"),
 
     // Sanitize fields.
     sanitizeBody('email').trim().escape(),
@@ -45,7 +46,7 @@ exports.register = [
                 if (err) { 
                   if (err.name === 'MongoError' && err.code === 11000) {
                     var error = {msg: "Sähköposti tai käyttäjätunnus on jo käytössä!"};
-                    return res.render('register', { title: 'Luo uusi käyttäjä', email: req.body.email, name: req.body.name, errors: [error] }); 
+                    return res.render('register', { title: 'Luo uusi käyttäjä', email: req.body.email, name: req.body.name, errors: [error]}); 
                   }
                   return next(err);
                 }
@@ -121,7 +122,8 @@ exports.updateProfile = [
       else if(value !== req.body.password1)
         throw new Error("Uudet salasanat eivät ole samat");
       else
-        return value;}).withMessage("Uudet salasanat eivät ole samat"),
+        return value;
+    }).withMessage("Uudet salasanat eivät ole samat"),
     body('oldPassword').trim().isLength({min:1, max:20}).withMessage('Vanha salasana on väärä'),
 
     // Sanitize fields.
@@ -141,7 +143,7 @@ exports.updateProfile = [
 
           if (!errors.isEmpty()) {
               // There are errors. Render form again with sanitized values/errors messages.
-              res.render('register', { title: 'Luo uusi käyttäjä', user: user, email: req.body.email, name: req.body.name, errors: errors.array() });
+              res.render('updateProfile', { title: 'Muokkaa profiilia', user: user, email: req.body.email, name: req.body.name, errors: errors.array()});
               return;
           }
           else {

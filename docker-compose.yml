@@ -1,6 +1,8 @@
 version: "2"
 services:
   app:
+    environment:
+      - WEATHER_API_KEY=${API_KEY}
     container_name: app
     restart: always
     build: .

@@ -25,7 +25,6 @@ router.get('/getHighscore', auth.required, function(req, res, next) {
 		})
 	else
 		res.send({score: 0});
-
 });
 
 router.get('/updateProfile', auth.required, function(req, res, next) {
@@ -33,7 +32,7 @@ router.get('/updateProfile', auth.required, function(req, res, next) {
 	var authUser = userController.current(req, res, next);
 	if(authUser !== null)
 		authUser.then(function(user) {
-			res.render('updateProfile', {title: "Muokkaa profiilia", user: user, name: user.name, email: user.email });
+			res.render('updateProfile', {title: "Muokkaa profiilia", user: user, name: user.name, email: user.email, apikey: user.apikey });
 		});
 	else
 		res.redirect('/user/login');

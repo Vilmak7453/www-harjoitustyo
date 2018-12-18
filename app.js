@@ -7,6 +7,10 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var cors = require('cors');
 var errorHandler = require('errorhandler');
+var xml2js = require('xml2js');
+var request = require('superagent');
+
+var parser = new xml2js.Parser();
 
 var gameRouter = require('./scripts/routes/gameRouter');
 var userRouter = require('./scripts/routes/userRouter');
@@ -31,8 +35,8 @@ app.use(session({
 
 //Set mongoose connection
 var mongoose = require('mongoose');
-//var mongoDB = 'mongodb://mongo:27017/localLibrary';
-var mongoDB = 'mongodb://192.168.99.100:27017/localLibrary';
+//var mongoDB = 'mongodb://localhost:27017/hoyry';
+var mongoDB = 'mongodb://192.168.99.100:27017/hoyry';
 mongoose.connect(mongoDB);
 mongoose.set('debug',true);
 mongoose.Promise = global.Promise;
@@ -45,6 +49,13 @@ app.set("views", path.join(__dirname, "/dist/views"));
 app.get('/', (req, res, next) => {
 
   res.redirect('/user');
+});
+
+app.get('/apiKey', function(req, res, next) {
+
+  if(process.env.WEATHER_API_KEY === undefined)
+    process.env.WEATHER_API_KEY = "";
+  res.send({apikey: process.env.WEATHER_API_KEY})
 });
 
 app.use('/game', gameRouter);

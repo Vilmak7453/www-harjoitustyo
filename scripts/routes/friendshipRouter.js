@@ -16,7 +16,7 @@ router.get('/searchFriends', auth.required, function(req, res, next) {
 	var authUser = userController.current(req, res, next);
 	if(authUser !== null)
 		authUser.then((user) => { 
-			res.render('searchFriends', {title: "Etsi kavereita", user: user});
+			res.render('searchFriends', {title: "Etsi käyttäjiä", user: user});
 		});
 	else
 		res.redirect("/user/login");

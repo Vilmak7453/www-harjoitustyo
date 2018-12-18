@@ -28,7 +28,6 @@ var overviewApp = new Vue({
 		request
 		.get('/friend/getFriendRequests')
 		.then(res => {
-	   		console.log(res.body);
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.friendRequests.push({
@@ -45,7 +44,6 @@ var overviewApp = new Vue({
    		request
 		.get('/friend/getFriends')
 		.then(res => {
-	   		console.log(res.body);
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.friends.push({
@@ -67,6 +65,15 @@ var overviewApp = new Vue({
 			.send({newFriendID: req.userID})
 			.then((res) => {
 				if(res.body.msg !== undefined) {
+					this.friends.push({
+						name: req.name
+					});
+					for(var i = 0; i < this.friendRequests.length; i++) {
+						if(this.friendRequests[i].name.match(req.name)) {
+							this.friendRequests.splice(i, 1);
+							break;
+						}
+					}
 		        	this.errortext = res.body.msg;
 		        	return;
 				}

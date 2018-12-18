@@ -19,7 +19,8 @@ var chatApp = new Vue({
 		conversations: [],
 		messages: [],
 		selectedConversation: "",
-		newMessage: ""
+		newMessage: "",
+		timer: ""
 	},
 	mounted() {
 
@@ -41,14 +42,22 @@ var chatApp = new Vue({
 	      console.log("Error retrieving requests " + err.message);
    		});
 	},
+	beforeDestroy() {
+		clearInterval(this.timer);
+	},
 	methods: {
 		openConversation: function(con) {
 			this.selectedConversation = con;
-			this.messages = [];
 
+			this.getMessages();
+			this.timer = setInterval(this.getMessages, 5000);
+		},
+		getMessages: function() {
+
+			this.messages = [];
 			request
 			.get("/chat/getMessages")
-			.query({conID: con.ID})
+			.query({conID: this.selectedConversation.ID})
 			.then((res) => {
 		    	console.log(res.body);
 		    	if(res.body !== null)
@@ -61,7 +70,7 @@ var chatApp = new Vue({
 			})
 		   	.catch(err => {
 		      console.log("Error retrieving messages " + err.message);
-		  	});
+		  	});		
 		},
 		sendMessage: function() {
 
