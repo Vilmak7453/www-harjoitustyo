@@ -126,7 +126,11 @@ request
 							        labels: values,
 							        datasets: [{
 							            label: 'Keskitulos Lappeenrannan lämpötilan suhteen: maailma',
-							            data: averages
+							            data: averages,
+							            borderColor: borderColorsOptions[1],
+							            backgroundColor: backgroundColorsOptions[1],
+							            fill: false,
+							            responsive: true
 							        }]
 							    }
 							});
@@ -152,7 +156,11 @@ request
 									        labels: values,
 									        datasets: [{
 									            label: 'Keskitulos Lappeenrannan lämpötilan suhteen: kaverit',
-									            data: averages
+									            data: averages,
+							            		borderColor: borderColorsOptions[1],
+							           			backgroundColor: backgroundColorsOptions[1],
+							            		fill: false,
+							          			responsive: true
 									        }]
 									    }
 									});

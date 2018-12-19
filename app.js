@@ -54,7 +54,6 @@ app.get('/', (req, res, next) => {
 
 app.get('/apiKey', function(req, res, next) {
 
-  process.env.WEATHER_API_KEY = "d6762584-4226-408f-a689-901b30744397";
   if(process.env.WEATHER_API_KEY === undefined)
     process.env.WEATHER_API_KEY = "";
   res.send({apikey: process.env.WEATHER_API_KEY})
