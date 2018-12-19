@@ -119,9 +119,9 @@ exports.getFriends = function(req, res, next) {
 		list_friendships.forEach(function(friend) {
 			var user1ID = friend.user1._id.toString();
 			if(!user1ID.match(user._id))
-				list.push({name: friend.user1.name});
+				list.push({name: friend.user1.name, ID: friend.user1._id});
 			else
-				list.push({name: friend.user2.name});
+				list.push({name: friend.user2.name, ID: friend.user2._id});
 		});
 		res.send(list);
 	});

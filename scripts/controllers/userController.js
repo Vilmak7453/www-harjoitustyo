@@ -4,6 +4,10 @@ var { body,validationResult } = require('express-validator/check');
 var { sanitizeBody } = require('express-validator/filter');
 
 var User = require('../models/user');
+var Score = require('../models/score');
+
+var statisticsController = require('../controllers/statisticsController');
+var scoreController = require('../controllers/scoreController');
 
 exports.register = [
 
@@ -184,3 +188,75 @@ exports.updateProfile = [
         res.redirect('/user/login');
     }
 ];
+
+exports.visitProfile = function(req, res, next) {
+
+  var visitUserID = req.params.id;
+  console.log(visitUserID);
+
+  User
+  .findById(visitUserID)
+  .then((visitUser) => {
+    Score
+    .aggregate([{
+      $match: {
+        user: visitUser._id
+      }
+    },{
+      $group: {
+        _id: null,
+        averageValue: {$avg: "$value"},
+        averageTemperature: {$avg: "$temperature"},
+        maxValue: {$max: "$value"},
+        minTemperature: {$min: "$temperature"},
+        maxTemperature: {$max: "$temperature"},
+        count: {$sum: 1}
+      }
+    }])
+    .exec(function(err, list_stats) {
+        if (err) { console.log(err); return next(err); }
+
+        var statList = [];
+        statList.push({
+          name: "Paras tulos",
+          value: list_stats[0].maxValue
+        });
+        statList.push({
+          name: "Pelatut pelit",
+          value: list_stats[0].count
+        });
+        statList.push({
+          name: "Tuloksien keskiarvo",
+          value: Math.round(list_stats[0].averageValue)
+        });
+        statList.push({
+          name: "Lämpötilojen keskiarvo",
+          value: Number.parseFloat(list_stats[0].averageTemperature.toString()).toFixed(2)
+        });
+        statList.push({
+          name: "Pienin lämpötila",
+          value: list_stats[0].minTemperature.toString()
+        });
+        statList.push({
+          name: "Korkein lämpötila",
+          value: list_stats[0].maxTemperature.toString()
+        });
+        
+        Score
+        .find({user: visitUser})
+        .sort([["value", "descending"]])
+        .limit(20)
+        .exec(function (err, list_score) {
+          if(err) { console.log(err); res.send(); }
+
+          var scoreList = [];
+          list_score.forEach(function(score) {
+            scoreList.push({value: score.value,
+                  date: score.date_formatted,
+                  temperature: score.temperature.toString()});
+          });
+          res.render('visitProfilePage', {title: "Vierailulla", user: req.body.user, visitUser: visitUser, stat_list: statList, score_list: scoreList});
+        });
+    })
+  })
+}

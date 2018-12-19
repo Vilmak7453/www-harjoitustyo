@@ -1,0 +1,27 @@
+extends layout
+
+block content
+	h4=visitUser.name
+
+	div(class="section row")
+		div(class="flow-text col m5 s12")
+				ul(style="font-size:1rem")
+					li
+						h5 #{visitUser.name}:n tilastot
+					each stat in stat_list
+						li #{stat.name}: #{stat.value}
+
+		div(class="section col m5 s12")
+			h5 #{visitUser.name}:n top 20
+			table(class="responsive-table")
+				thead
+					tr
+						th Pisteet
+						th L&auml;mp&ouml;tila(&deg;C)
+						th P&auml;iv&auml;m&auml;&auml;r&auml;
+				tbody
+					each score in score_list
+						tr
+							td #{score.value} 
+							td #{score.temperature}
+							td #{score.date}

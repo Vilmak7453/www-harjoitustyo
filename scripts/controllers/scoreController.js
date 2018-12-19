@@ -40,6 +40,11 @@ exports.score_list = function(req, res, next) {
 	.limit(10)
 	.exec(function (err, list_score_world) {
     	if (err) { console.log(err); return next(err); }
+
+    	list_score_world.forEach(score => {
+    		if(score.user !== null)
+    			score.url = "/profile/visit/" + score.user._id;
+    	});
       
       	if(user !== null && user !== undefined) {
 	    	Friendship
@@ -66,6 +71,11 @@ exports.score_list = function(req, res, next) {
 				.limit(10)
 				.exec(function(err, list_score_friends) {
     				if (err) { console.log(err); return next(err); }
+
+    				list_score_friends.forEach(score => {
+			    		if(score.user !== null)
+    						score.url = "/profile/visit/" + score.user._id;
+			    	});
 
     				res.render('scoreboard', { title: "Top listat", score_list_world: list_score_world, score_list_friends: list_score_friends, user: user });
 				});
@@ -101,19 +111,20 @@ exports.getHighscoreByUser = function(req, res, next) {
 
 exports.getUsersScores = function(req, res, next) {
 
-	Score.find({user: req.body.user})
-		.sort([["value", "descending"]])
-		.limit(20)
-		.exec(function (err, list_score) {
-		  if(err) { console.log(err); res.send(); }
-		  var newlist = [];
-		  list_score.forEach(function(score) {
-		  	newlist.push({value: score.value,
-		  				date: score.date_formatted,
-		  				temperature: score.temperature.toString()});
-		  });
-		  res.send(newlist);
-		});
+	Score
+	.find({user: req.body.user})
+	.sort([["value", "descending"]])
+	.limit(20)
+	.exec(function (err, list_score) {
+	  if(err) { console.log(err); res.send(); }
+	  var newlist = [];
+	  list_score.forEach(function(score) {
+	  	newlist.push({value: score.value,
+	  				date: score.date_formatted,
+	  				temperature: score.temperature.toString()});
+	  });
+	  res.send(newlist);
+	});
 }
 
 exports.getUsernameEmailPoints = function(req, res, next) {

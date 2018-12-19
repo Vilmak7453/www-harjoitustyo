@@ -7,11 +7,11 @@ block content
 	div(id="profile", class="container")
 		div.row(style="display: inline-block")
 			form.col(method='GET' action='/profile/updateProfile')
-				h1=user.name
+				h4=user.name
 					button(class="btn-small waves-effect waves-light orange" type="submit" style="margin-left:1rem") 
 						<i class="material-icons">edit</i>
 			div.col
-				h1
+				h4
 					button(class="btn-small waves-effect waves-light orange" v-on:click="downloadPDF()") 
 						<i class="material-icons">file_download</i>
 	
@@ -27,14 +27,15 @@ block content
 						v-bind:statistic="stat", 
 						v-bind:key="stat.id"
 					)
-			div(class="flow-text col m5 s12")
-				ul(class="collection with-header" style="font-size:1rem")
-					li(class="collection-header")
-						h5 Omat tulokset top 20
-					score-component(
-						v-for="item in scores", 
-						v-bind:score="item", 
-						v-bind:key="item.id"
-					)
+			div(class="section col m5 s12")
+				h5 Omat top 20
+				table(class="responsive-table")
+					thead
+						tr
+							th Pisteet
+							th L&auml;mp&ouml;tila(&deg;C)
+							th P&auml;iv&auml;m&auml;&auml;r&auml;
+					tbody
+						tr(v-for="item in scores" is="score-component" :score="item" :key="item.id")
 
 	script(type="text/javascript", src="../profile.js") 

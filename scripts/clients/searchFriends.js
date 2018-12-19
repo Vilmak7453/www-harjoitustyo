@@ -4,7 +4,7 @@ import request from 'superagent';
 Vue.component("result-component", {
 	props: ['result'],
 	template: '<li class="collection-item">' + 
-			'<div><a type="text">{{result.name}}</a>' +
+			'<div><a :href="result.url" type="text">{{result.name}}</a>' +
 			'<a class="secondary-content blue-text text-darken-1 white small" v-on:click="$emit(\'add-friend\')">' +
 			'<i class="material-icons">person_add</i></a></div></li>'
 })
@@ -29,7 +29,8 @@ var searchApp = new Vue({
 			    	for(var i = 0; i < res.body.length; i++) {
 			      		this.results.push({
 							name: res.body[i].name,
-							userID: res.body[i]._id
+							userID: res.body[i]._id,
+							url: "/profile/visit/" + res.body[i]._id
 						});
 			    	}
 		   	})

@@ -4,7 +4,7 @@ import request from 'superagent';
 Vue.component("request-component", {
 	props: ['request'],
 	template: '<li class="collection-item">' + 
-			'<div><a type="text">{{request.name}}</a>' +
+			'<div><a type="text" :href="request.url">{{request.name}}</a>' +
 			'<a class="secondary-content blue-text text-darken-1 white small" v-on:click="$emit(\'accept-friend\')">' +
 			'<i class="material-icons">person_add</i></a></div></li>'
 })
@@ -12,7 +12,7 @@ Vue.component("request-component", {
 Vue.component("friend-component", {
 	props: ['friend'],
 	template: '<li class="collection-item">' + 
-			'<div><a type="text">{{friend.name}}</a></div></li>'
+			'<div><a :href="friend.url" type="text">{{friend.name}}</a></div></li>'
 })
 
 var overviewApp = new Vue({
@@ -32,7 +32,8 @@ var overviewApp = new Vue({
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.friendRequests.push({
 						name: res.body[i].name,
-						userID: res.body[i].userID
+						userID: res.body[i].userID,
+						url: "/profile/visit/" + res.body[i].userID
 					});
 		      	}
 		  	}
@@ -47,7 +48,8 @@ var overviewApp = new Vue({
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.friends.push({
-						name: res.body[i].name
+						name: res.body[i].name,
+						url: "/profile/visit/" + res.body[i].ID
 					});
 		      	}
 		  	}
@@ -78,6 +80,12 @@ var overviewApp = new Vue({
 		        	return;
 				}
 			});
+		},
+		visitFriend: function(friend) {
+
+			request
+			.get('/profile/' + friend.ID)
+			.end();
 		}
 	}
 

@@ -64,4 +64,18 @@ router.get('/getUsernameEmailPoints', auth.required, function(req, res, next) {
 		res.redirect('/user/login');
 });
 
+router.get('/visit/:id', auth.optional, function(req, res, next) {
+
+	var authUser = userController.current(req, res, next);
+	if(authUser !== null)
+		authUser.then(function(user) {
+			req.body.user = user;
+			userController.visitProfile(req, res, next);
+		});
+	else {
+		req.body = [];
+		userController.visitProfile(req, res, next);
+	}
+});
+
 module.exports = router;

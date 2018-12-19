@@ -193,7 +193,7 @@ exports.userStatistics = function(req, res, next) {
 		});
 		list.push({
 			name: "Lämpötilojen keskiarvo",
-			value: list_stats[0].averageTemperature.toString()
+			value: Number.parseFloat(list_stats[0].averageTemperature.toString()).toFixed(2)
 		});
 		list.push({
 			name: "Pienin lämpötila",

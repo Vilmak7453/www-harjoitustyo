@@ -6,8 +6,11 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 Vue.component("score-component", {
 	props: ['score'],
-	template: '<li class="collection-item">' + 
-			'<p> {{score.value}} pistett&auml; {{score.temperature}}&deg;C klo {{score.date}}</p></li>'
+	template: '<tr>' + 
+				'<td> {{score.value}} </td>' + 
+				'<td> {{score.temperature}} </td>' +
+				'<td> {{score.date}} </td>' + 
+			'</tr>'
 })
 
 Vue.component("stat-component", {
