@@ -3,10 +3,22 @@ extends layout
 block content
 	h1=title
 
-	div(class="section col")
+	div(class="section col s10 m5")
 		ul
-			each score in score_list
+			li
+				h4 Top 10 maailma
+			each score in score_list_world
 				li
 					p #{score.value} pistett&auml; #{score.temperature}&deg;C : #{(score.user !== null ?  score.user.name : "Unknown")}, #{score.date_formatted}
 			else
 				li There are no scores
+	if((user !== undefined) && (user !== null))
+		div(class="section col s10 m5")
+			ul
+				li
+					h4 Top 10 kaverit
+				each score in score_list_friends
+					li
+						p #{score.value} pistett&auml; #{score.temperature}&deg;C : #{(score.user !== null ?  score.user.name : "Unknown")}, #{score.date_formatted}
+				else
+					li There are no scores

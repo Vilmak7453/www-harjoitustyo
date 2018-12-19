@@ -30,4 +30,10 @@ module.exports = [{
     filename: 'chat.js',
     path: path.resolve(__dirname, 'dist')
   }
+},{
+  entry: './scripts/clients/statistics.js',
+  output: {
+    filename: 'statistics.js',
+    path: path.resolve(__dirname, 'dist')
+  }
 }];

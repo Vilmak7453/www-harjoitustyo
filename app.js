@@ -17,6 +17,7 @@ var userRouter = require('./scripts/routes/userRouter');
 var profileRouter = require('./scripts/routes/profileRouter');
 var friendshipRouter = require('./scripts/routes/friendshipRouter');
 var chatRouter = require('./scripts/routes/chatRouter');
+var statisticsRouter = require('./scripts/routes/statisticsRouter');
 require('./config/passport');
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -53,6 +54,7 @@ app.get('/', (req, res, next) => {
 
 app.get('/apiKey', function(req, res, next) {
 
+  process.env.WEATHER_API_KEY = "d6762584-4226-408f-a689-901b30744397";
   if(process.env.WEATHER_API_KEY === undefined)
     process.env.WEATHER_API_KEY = "";
   res.send({apikey: process.env.WEATHER_API_KEY})
@@ -63,6 +65,7 @@ app.use('/user', userRouter);
 app.use('/profile', profileRouter);
 app.use('/friend', friendshipRouter);
 app.use('/chat', chatRouter);
+app.use('/statistics', statisticsRouter);
 
 if(!isProduction) {
   app.use((err, req, res, next) => {

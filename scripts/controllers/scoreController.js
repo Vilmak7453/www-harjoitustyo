@@ -1,5 +1,6 @@
 "use strict";
 var Score = require("../models/score");
+var Friendship = require("../models/friendship");
 
 exports.score_save = function(req, res, next) {
 	var highScore = req.body.score;
@@ -32,14 +33,46 @@ exports.score_save = function(req, res, next) {
 
 exports.score_list = function(req, res, next) {
 
+	var user = req.body.user;
 	Score.find()
 	.populate('user')
 	.sort([["value", "descending"]])
-	.limit(20)
-	.exec(function (err, list_score) {
-      if (err) { console.log(err); return next(err); }
-      //Successful, so render
-      res.render('scoreboard', { title: "Scoreboard", score_list: list_score, user: req.body.user });
+	.limit(10)
+	.exec(function (err, list_score_world) {
+    	if (err) { console.log(err); return next(err); }
+      
+      	if(user !== null && user !== undefined) {
+	    	Friendship
+			.find({$or:[{user1: user._id}, {user2: user._id}]})
+			.where({accepted1: true, accepted2:true})
+			.populate('user1 user2')
+			.exec(function(err, list_friendships) {
+    			if (err) { console.log(err); return next(err); }
+
+				var friendList = [];
+				list_friendships.forEach(function(friend) {
+					var user1ID = friend.user1._id.toString();
+					if(!user1ID.match(user._id))
+						friendList.push(friend.user1);
+					else
+						friendList.push(friend.user2);
+				});
+				friendList.push(user);
+
+				Score
+				.find({user: {$in: friendList} })
+				.populate('user')
+				.sort([["value", "descending"]])
+				.limit(10)
+				.exec(function(err, list_score_friends) {
+    				if (err) { console.log(err); return next(err); }
+
+    				res.render('scoreboard', { title: "Top listat", score_list_world: list_score_world, score_list_friends: list_score_friends, user: user });
+				});
+			});
+		}
+		else
+    		res.render('scoreboard', { title: "Top listat", score_list_world: list_score_world, user: user });
     });
 };
 
@@ -70,6 +103,7 @@ exports.getUsersScores = function(req, res, next) {
 
 	Score.find({user: req.body.user})
 		.sort([["value", "descending"]])
+		.limit(20)
 		.exec(function (err, list_score) {
 		  if(err) { console.log(err); res.send(); }
 		  var newlist = [];

@@ -27,7 +27,6 @@ var chatApp = new Vue({
 		request
 		.get('/chat/getConversations')
 		.then(res => {
-	   		console.log(res.body);
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.conversations.push({
@@ -59,7 +58,6 @@ var chatApp = new Vue({
 			.get("/chat/getMessages")
 			.query({conID: this.selectedConversation.ID})
 			.then((res) => {
-		    	console.log(res.body);
 		    	if(res.body !== null)
 			    	for(var i = 0; i < res.body.length; i++) {
 			      		this.messages.push({

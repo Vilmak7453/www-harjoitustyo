@@ -32,6 +32,7 @@ router.post("/saveScore", auth.optional, function(req, res, next) {
 });
 
 router.get("/scoreboard", auth.optional, function(req, res, next) {
+	
 	var authUser = userController.current(req, res, next);
 	if(authUser !== null) 
 		authUser.then((user) => { 

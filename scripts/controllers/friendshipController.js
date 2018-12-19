@@ -113,6 +113,7 @@ exports.getFriends = function(req, res, next) {
 	.where({accepted1: true, accepted2:true})
 	.populate('user1 user2')
 	.exec(function(err, list_friendships) {
+    	if (err) { console.log(err); return next(err); }
 
 		var list = [];
 		list_friendships.forEach(function(friend) {
