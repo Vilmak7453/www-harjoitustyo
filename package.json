@@ -30,6 +30,7 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "patternomaly": "^1.3.2",
+    "pdfmake": "^0.1.39",
     "pug": "^2.0.3",
     "superagent": "^4.0.0",
     "superagent-progress": "0.0.3",

@@ -116,6 +116,21 @@ exports.getUsersScores = function(req, res, next) {
 		});
 }
 
+exports.getUsernameEmailPoints = function(req, res, next) {
+
+	Score.find({user: req.body.user})
+		.sort([["value", "descending"]])
+		.limit(20)
+		.exec(function (err, list_score) {
+		  if(err) { console.log(err); res.send(); }
+		  var newlist = [];
+		  list_score.forEach(function(score) {
+		  	newlist.push([score.value, score.temperature.toString(), score.date_formatted]);
+		  });
+		  res.send({username: req.body.user.name, email: req.body.user.email, points: newlist});
+		});
+}
+
 exports.remove_all_scores = function() {
 	
 	console.log("Remove all scores");

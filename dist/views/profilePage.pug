@@ -5,19 +5,32 @@ block head
 
 block content
 	div(id="profile", class="container")
-		form(method='GET' action='/profile/updateProfile')
-			h1=user.name
-				button(class="btn-small waves-effect waves-light orange" type="submit" style="margin:1rem") 
-					<i class="material-icons">edit</i>
+		div.row(style="display: inline-block")
+			form.col(method='GET' action='/profile/updateProfile')
+				h1=user.name
+					button(class="btn-small waves-effect waves-light orange" type="submit" style="margin-left:1rem") 
+						<i class="material-icons">edit</i>
+			div.col
+				h1
+					button(class="btn-small waves-effect waves-light orange" v-on:click="downloadPDF()") 
+						<i class="material-icons">file_download</i>
 	
 		p="Sähköposti: " + user.email
-		p Paras tulos: {{ highscore }}
 
 		div(class="section row")
-			div(class="flow-text col m6 s12")
+			div(class="flow-text col m5 s12")
+				ul(style="font-size:1rem")
+					li
+						h5 Omat tilastot
+					stat-component(
+						v-for="stat in stats", 
+						v-bind:statistic="stat", 
+						v-bind:key="stat.id"
+					)
+			div(class="flow-text col m5 s12")
 				ul(class="collection with-header" style="font-size:1rem")
 					li(class="collection-header")
-						h6 Omat tulokset top 20
+						h5 Omat tulokset top 20
 					score-component(
 						v-for="item in scores", 
 						v-bind:score="item", 

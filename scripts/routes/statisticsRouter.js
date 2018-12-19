@@ -46,4 +46,16 @@ router.get("/friendAvgWeather", auth.optional, function(req, res, next) {
 		res.send({empty: false});
 });
 
+router.get("/getUserStatistics", auth.required, function(req, res, next) {
+
+	var authUser = userController.current(req, res, next);
+	if(authUser !== null) 
+		authUser.then((user) => { 
+			req.body.user = user;
+			statisticsController.userStatistics(req, res, next);
+		});
+	else
+		res.redirect("/user/login");
+});
+
 module.exports = router;

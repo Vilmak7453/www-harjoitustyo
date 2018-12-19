@@ -52,4 +52,16 @@ router.get('/getUsersScores', auth.required, function(req, res, next) {
 		res.redirect('/user/login');
 });
 
+router.get('/getUsernameEmailPoints', auth.required, function(req, res, next) {
+
+	var authUser = userController.current(req, res, next);
+	if(authUser !== null)
+		authUser.then(function(user) {
+			req.body.user = user;
+			scoreController.getUsernameEmailPoints(req, res, next);
+		});
+	else
+		res.redirect('/user/login');
+});
+
 module.exports = router;
