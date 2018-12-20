@@ -3,12 +3,14 @@ import Chart from "chart.js";
 import request from "superagent";
 import pattern from "patternomaly";
 
+//Color options for graphs
 var backgroundColorsOptions = ['rgba(255, 99, 132, 0.2)',
 			                'rgba(54, 162, 235, 0.2)'];
 var borderColorsOptions = ['rgba(255,99,132,1)',
 			                'rgba(54, 162, 235, 1)'];
 
-
+//Calculate counts for scores world wide
+//And draw bar chart
 request
 .get('/statistics/worldSum')
 .then(res => {
@@ -22,6 +24,8 @@ request
 	    	for(var i = 0; i < res.body.length; i++) {
 	  			amounts.push(res.body[i].amount);
 	  			values.push(res.body[i].value);
+
+	  			//Every second bar is blue and every another is red
 	  			if(Math.round(i/2) > i/2) {
 	  				bgColors.push(backgroundColorsOptions[0]);
 	  				bdColors.push(borderColorsOptions[0])
@@ -32,6 +36,7 @@ request
 	  			}
 	      	}
 
+	      	//Find canvas
 			var context = document.getElementById("worldSum");
 
 			var worldSumChart = new Chart(context, {
@@ -45,21 +50,14 @@ request
 			            borderColor: bdColors,
 			            borderWidth: 1
 			        }]
-			    },
-			    options: {
-			        scales: {
-			            yAxes: [{
-			                ticks: {
-			                    beginAtZero:true
-			                }
-			            }]
-			        }
 			    }
 			});
   		}
 
+		//Calculate counts for scores from friend base including logged user if user is logged
+		//And draw bar chart
   		request
-		.get('/statistics/friendSum')
+		.get('/statistics/authOp/friendSum')
 		.then(res => {
 				if(res.body.empty === undefined) {
 
@@ -71,6 +69,8 @@ request
 			    	for(var i = 0; i < res.body.length; i++) {
 			  			amounts.push(res.body[i].amount);
 			  			values.push(res.body[i].value);
+
+	  					//Every second bar is blue and every another is red
 			  			if(Math.round(i/2) > i/2) {
 			  				bgColors.push(backgroundColorsOptions[0]);
 			  				bdColors.push(borderColorsOptions[0])
@@ -81,6 +81,7 @@ request
 			  			}
 			      	}
 
+			      	//Find canvas
 					var context = document.getElementById("friendSum");
 
 					var friendSumChart = new Chart(context, {
@@ -94,19 +95,12 @@ request
 					            borderColor: bdColors,
 					            borderWidth: 1
 					        }]
-					    },
-					    options: {
-					        scales: {
-					            yAxes: [{
-					                ticks: {
-					                    beginAtZero:true
-					                }
-					            }]
-					        }
 					    }
 					});
 		  		}
 
+				//Calculate the average scores for every temperature world wide
+				//And draw line chart
 		  		request
 				.get('/statistics/worldAvgWeather')
 				.then(res => {
@@ -118,6 +112,8 @@ request
 					  			averages.push(res.body[i].avg);
 					  			values.push(JSON.stringify(res.body[i].value).split("\"")[3]);
 					      	}
+
+					      	//Find canvas
 							var context = document.getElementById("worldAvgWeather");
 
 							var worldAvgWeatherChart = new Chart(context, {
@@ -125,7 +121,7 @@ request
 							    data: {
 							        labels: values,
 							        datasets: [{
-							            label: 'Keskitulos Lappeenrannan lämpötilan suhteen: maailma',
+							            label: 'Keskitulos Lappeenrannan lämpötilan suhteen:\n maailma',
 							            data: averages,
 							            borderColor: borderColorsOptions[1],
 							            backgroundColor: backgroundColorsOptions[1],
@@ -136,8 +132,10 @@ request
 							});
 				  		}
 
+						//Calculate the average scores for every temperature  from friend base including logged user if logged in
+						//And draw line chart
 				  		request
-						.get('/statistics/friendAvgWeather')
+						.get('/statistics/authOp/friendAvgWeather')
 						.then(res => {
 								if(res.body.empty === undefined) {
 

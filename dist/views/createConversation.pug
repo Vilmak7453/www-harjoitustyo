@@ -11,7 +11,7 @@ block content
 		h1=title
 
 		div(class="col s4")
-			form(method='POST' action='/chat/createConversation')
+			form(method='POST' action='/chat/auth/createConversation')
 				div.form-group
 					label(for='groupName') Ryhm&auml;n nimi:
 					input#groupName.form-control(type='text' placeholder="Team Best" name='groupName' required='true' value=(undefined===name ? '' : name))
@@ -23,6 +23,7 @@ block content
 							option(value=(friend.id)) #{friend.name}
 
 				button.btn.btn-primary(type='submit') Luo ryhm&auml;
+				p Voit valita useita k&auml;ytt&auml;ji&auml; pit&auml;m&auml;ll&auml; ctrl- tai shift-n&auml;pp&auml;int&auml; pohjassa klikkaillessasi k&auml;ytt&auml;ji&auml;
 
 			if errors 
 				ul

@@ -5,6 +5,7 @@
 import request from 'superagent';
 import metolib from '@fmidev/metolib';
 
+//Set configurations for the game
 var config = {
     type: Phaser.AUTO,
     width: 800,
@@ -13,12 +14,12 @@ var config = {
     physics: {
         default: "arcade",
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: 300 }, //How fast object fall
             debug: false
         }
     },
     scene: {
-        preload: preload,
+        preload: preload, //Set functions
         create: create,
         update: update
     }
@@ -60,7 +61,7 @@ function create() {
     setXY: { x: 12, y: 0, stepX: 70}
    });
    stars.children.iterate(function(child) {
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)); //Stars will bounce for a while
    });
    this.physics.add.collider(stars, platforms);
 
@@ -122,31 +123,35 @@ function collectStar(player, star) {
     score += 10;
     scoreText.setText("Score: " + score);
 
+    //When all stars are collected, create/show and drop them again
     if(stars.countActive(true) === 0) {
         stars.children.iterate(function(child) {
             child.enableBody(true, child.x, 0, true, true);
         });
-}
+    }
         var x = (player.x < 400) ? 
         Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
       
+        //Create new bomb other side of the map
         var bomb = bombs.create(x, 16, "bomb");
         bomb.setBounce(1);
         bomb.setCollideWorldBounds(true);
         bomb.setVelocity(Phaser.Math.Between(-200, 200),20);
         bomb.allowGravity = false;
-    //}
 }
 
 function hitBomb(player, bomb) {
 
+    //Stop game
     this.physics.pause();
     player.setTint(0xff0000);
     player.anims.play("turn");
 
+    //Fetch apikey for ilmatieteenlaitos so that weather data can be fetched
     request
     .get('/apiKey')
     .then((res) => {
+      //If there are no apikey, save score without temperature
       if(res.body.apikey === "" || res.body.apikey === undefined) {
         request
         .post("/game/saveScore")
@@ -158,6 +163,7 @@ function hitBomb(player, bomb) {
         var apiKey = res.body.apikey;
         var wfsParser = new metolib.WfsRequestParser();
 
+        //Find Lappeenranta's temperature's most recent value
         wfsParser.getData({
           url: "https://data.fmi.fi/fmi-apikey/" + apiKey + "/wfs",
           storedQueryId: "fmi::observations::weather::multipointcoverage",
@@ -175,6 +181,7 @@ function hitBomb(player, bomb) {
               var temperature;
               var regex = RegExp("^[0-9.\-]+$");
 
+              //Last value is most likely NaN, so take last number
               for(var i = 0; i < timeValuePairs.length; i++) {
                 if(regex.test(timeValuePairs[i].value))
                   temperature = timeValuePairs[i].value;

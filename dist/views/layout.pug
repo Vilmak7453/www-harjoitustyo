@@ -4,44 +4,56 @@ html(lang='en')
     title= title
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1')
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js')
+
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js")
+
     link(rel='stylesheet', href='/style.css')
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css") 
     link(href="https://fonts.googleapis.com/icon?family=Material+Icons", rel="stylesheet")
+
     block head
 
   body
-    div(class='section container-fluid')
-      div(class='row')
-        div(class='col-sm-2')
-          block sidebar
-            ul(class='section col sidebar-nav')
-              if((user === undefined) || (user === null))
-                li
-                  p="Hei vieras!"
-                li
-                  a(href='/user/register') Rekister&ouml;idy
-                li
-                  a(href='/user/login') Kirjaudu sis&auml;&auml;n
-              if((user !== undefined) && (user !== null))
-                li
-                  p="Hei " + user.name +"!"
-                li
-                  a(href='/profile') Profiili
-                li
-                  a(href='/friend/searchFriends') Etsi kavereita 
-                li
-                  a(href='/friend/friendOverview') Kaverit
-                li
-                  a(href='/chat') Keskustelut
-                li
-                  a(href='/user/logout') Kirjaudu ulos
-              li 
-                a(href='/game') Peli
-              li
-                a(href='/game/scoreboard') Top 10
-              li
-                a(href='/statistics') Tilastot
-                
-        div(class='col-sm-10')
-          block content
+
+    nav(class="nav-extended")
+      div(class="nav-wrapper")
+        a(style="font-size: 5em") H&ouml;yry
+        ul(class="right")
+          if((user === undefined) || (user === null))
+            li
+              a.hide-on-med-and-down(href='/user/register') Rekister&ouml;idy
+            li
+              a.hide-on-med-and-down(href='/user/login') Kirjaudu sis&auml;&auml;n
+          if((user !== undefined) && (user !== null))
+            li
+              a Hei #{user.name}!
+            li
+              a.hide-on-med-and-down(href='/user/logout') Kirjaudu ulos
+            
+      div(class="nav-content")
+        ul(class="tabs tabs-transparent")
+          li.tab
+            a(href='/game') Peli
+          li.tab
+            a(href='/game/scoreboard') Top 10
+          li.tab
+            a(href='/statistics') Tilastot
+          if((user !== undefined) && (user !== null))
+            li.tab
+              a(href='/profile/auth') Profiili
+            li.tab
+              a(href='/friend/auth/searchFriends') Etsi kavereita 
+            li.tab
+              a(href='/friend/auth/friendOverview') Kaverit
+            li.tab
+              a(href='/chat/auth') Keskustelut  
+            li.tab
+              a.hide-on-med-and-up(href='/user/logout') Kirjaudu ulos
+          if((user === undefined) || (user === null))
+            li.tab
+              a.hide-on-med-and-up(href='/user/register') Rekister&ouml;idy
+            li.tab
+              a.hide-on-med-and-up(href='/user/login') Kirjaudu sis&auml;&auml;n
+    
+    block content

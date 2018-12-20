@@ -8,6 +8,7 @@ var userController = require('../controllers/userController');
 var { sanitizeBody } = require('express-validator/filter');
 var { body,validationResult } = require('express-validator/check');
 
+//Get conversations aka groupchats in which logged user belongs
 exports.getConversations = function(req, res, next) {
 
 	var user = req.body.user;
@@ -21,9 +22,11 @@ exports.getConversations = function(req, res, next) {
 	});
 }
 
+//Render page for creating new conversation
 exports.renderConversation = function(req, res, next) {
 
 	var user = req.body.user;
+	//Find friends
 	Friendship
 	.find({$or:[{user1: user._id}, {user2: user._id}]})
 	.where({accepted1: true, accepted2:true})
@@ -44,6 +47,7 @@ exports.renderConversation = function(req, res, next) {
 
 exports.createConversation = [
 	
+	//Validate and sanitaze groupname
 	body('groupName').trim().isLength({min: 1, max: 30}).withMessage('Nimen pitää olla 1-30 merkkiä pitkä!'),
 	sanitizeBody('groupName').trim().escape(),
 
@@ -51,38 +55,33 @@ exports.createConversation = [
 
 		const errors = validationResult(req);
 
-	    var authUser = userController.current(req, res, next);
-		if(authUser !== null)
-			authUser.then(function(user) {
-		        if (!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
 
-		            res.render('createConversation', { title: 'Luo uusi keskustelu', name: req.body.groupName, errors: errors.array(), user: user});	
-		            return;
-		        }
-		        else {
-					var conversation = new Conversation({
-						groupName: req.body.groupName
-					});
-					var friends = [];
-					console.log(req.body.groupers);
-					if(Array.isArray(req.body.groupers))
-						for(var i = 0; i < req.body.groupers.length; i++) {
-							friends.push(req.body.groupers[i]);
-						}
-					else
-						friends.push(req.body.groupers);
-						friends.push(user);
-						conversation.users = friends;
-						conversation.save(function (err) {
-			                if (err) { 
-			                  return next(err);
-			                }
-			                res.redirect("/chat");
-			            });
-				}
+            res.render('createConversation', { title: 'Luo uusi keskustelu', name: req.body.groupName, errors: errors.array(), user: req.body.user});	
+            return;
+        }
+        else {
+			var conversation = new Conversation({
+				groupName: req.body.groupName
 			});
-        else
-			res.redirect('/user/login');
+			var friends = [];
+
+			if(Array.isArray(req.body.groupers))
+				for(var i = 0; i < req.body.groupers.length; i++) {
+					friends.push(req.body.groupers[i]);
+				}
+			else
+				friends.push(req.body.groupers);
+
+			friends.push(req.body.user);	//Add logged user to conversation also
+			conversation.users = friends;
+			conversation.save(function (err) {
+                if (err) { 
+                  return next(err);
+                }
+                res.redirect("/chat");
+            });
+		}
 	}
 ];
 
@@ -90,6 +89,7 @@ exports.sendMessage = function(req, res, next) {
 
 	var user = req.body.user;
 
+	//Find conversation to which message is sent
 	Conversation
 	.findById(req.body.conversationID)
 	.then((conversation) => {
@@ -114,22 +114,42 @@ exports.sendMessage = function(req, res, next) {
 	})
 }
 
+//Get conversation's messages
 exports.getMessages = function(req, res, next) {
 
+	//Time when last time messages where fetched. Same old messages are unnecessary to fetch again
+	var latestUpdate = req.query.latestUpdate;
+
+	//Find right conversation
 	Conversation
 	.findById(req.query.conID)
 	.then((conversation) => {
 		if(!conversation)
 			res.send({msg: "Conversation not found"});
 		else {
-			Message
-			.find({conversation: conversation})
-			.populate('from')
-			.select('text from')
-			.exec(function(err, list_msg) {
-      			if (err) { console.log(err); return next(err); }
-      			res.send(list_msg);
-			});
+			//if messages haven't been fetched before latestUpdate will be empty string
+			if(latestUpdate === "")
+				//Find all messages
+				Message
+				.find({conversation: conversation})
+				.populate('from')
+				.select('text from date')
+				.exec(function(err, list_msg) {
+	      			if (err) { console.log(err); return next(err); }
+	      			res.send(list_msg);
+				});
+			else {
+				//Find only recent messages
+				Message
+				.find({conversation: conversation})
+				.where({date: {$gt: latestUpdate}})
+				.populate('from')
+				.select('text from date')
+				.exec(function(err, list_msg) {
+	      			if (err) { console.log(err); return next(err); }
+	      			res.send(list_msg);
+				});
+			}
 		}
-	})
+	});
 }

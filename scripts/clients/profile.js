@@ -4,6 +4,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
+//Component that shows user's top 20 scores
 Vue.component("score-component", {
 	props: ['score'],
 	template: '<tr>' + 
@@ -13,6 +14,7 @@ Vue.component("score-component", {
 			'</tr>'
 })
 
+//Component that shows user's stats for example played games, highscore etc.
 Vue.component("stat-component", {
 	props: ['statistic'],
 	template: '<li>' + 
@@ -28,7 +30,7 @@ var profileApp = new Vue({
 	mounted() {
 
 		request
-	   	.get('/profile/getUsersScores')
+	   	.get('/profile/auth/getUsersScores')
 	   	.then(res => {
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
@@ -45,7 +47,7 @@ var profileApp = new Vue({
    		});
 
 	   	request
-	   	.get('/statistics/getUserStatistics')
+	   	.get('/statistics/auth/getUserStatistics')
 	   	.then(res => {
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
@@ -61,14 +63,17 @@ var profileApp = new Vue({
    		});
 	},
 	methods: {
+		//Generate and download PDF of user's profile page including email, top 20 scores and stats
 		downloadPDF: function() {
 			
+			//Get user's username, email and top 20 scores
 			request
-			.get('/profile/getUsernameEmailPoints')
+			.get('/profile/auth/getUsernameEmailPoints')
 			.then(res => {
 				var username = res.body.username;
 				var email = res.body.email;
 
+				//Scores must be set in table as list of rows. Rows are list
 				var points = [];
 				points.push(['Pisteet', 'Lämpötila', 'Päivämäärä']);
 				for(var i = 0; i < res.body.points.length; i++) {

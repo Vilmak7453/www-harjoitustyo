@@ -3,19 +3,21 @@ var Score = require("../models/score");
 var Friendship = require("../models/friendship");
 
 exports.score_save = function(req, res, next) {
-	var highScore = req.body.score;
+	var newScore = req.body.score;
 
-	if(testScore(highScore) === true) {
+	//Check that score is number
+	if(testScore(newScore) === true) {
 		var user = req.body.user;
 		var score;
+		//Check that temperature contains only numbers, "." and "-""
 		if(req.body.temp === undefined || !testTemperature(req.body.temp))
 			score = new Score({
-				value: highScore,
+				value: newScore,
 				user: user
 			});
 		else
 			score = new Score({
-				value: highScore,
+				value: newScore,
 				user: user,
 				temperature: req.body.temp
 			});
@@ -23,17 +25,20 @@ exports.score_save = function(req, res, next) {
 			function (err) {
                 if (err) { 
                 	console.log("Saving score failed.");
-                	return; }
+                	return next(err); }
         });
 	}
 	else {
-		console.log("Score not number: " + highScore);
+		console.log("Score not number: " + newScore);
+		next(err);
 	}
 };
 
+//Fetch scores for scoreboard. If not logged in, only world's top 10. If logged, then also friends' top 10 including user themselves
 exports.score_list = function(req, res, next) {
 
 	var user = req.body.user;
+	//Find world wide top 10 scores
 	Score.find()
 	.populate('user')
 	.sort([["value", "descending"]])
@@ -46,6 +51,7 @@ exports.score_list = function(req, res, next) {
     			score.url = "/profile/visit/" + score.user._id;
     	});
       
+      	//If user is logged, find friends. Both must have accepted the friend request
       	if(user !== null && user !== undefined) {
 	    	Friendship
 			.find({$or:[{user1: user._id}, {user2: user._id}]})
@@ -64,6 +70,7 @@ exports.score_list = function(req, res, next) {
 				});
 				friendList.push(user);
 
+				//Find top 10 scores among friends and user
 				Score
 				.find({user: {$in: friendList} })
 				.populate('user')
@@ -86,18 +93,21 @@ exports.score_list = function(req, res, next) {
     });
 };
 
+//Test that score is number
 function testScore(score) {
 
 	var regex = RegExp("^[0-9]+$");
 	return regex.test(score);
 };
 
+//Test that temperature contains only numbers, "." and "-""
 function testTemperature(temp) {
 
 	var regex = RegExp("^[0-9.\-]+$");
 	return regex.test(temp);
 };
 
+//Get user's highscore. If there are no scores, return 0
 exports.getHighscoreByUser = function(req, res, next) {
 	
 	Score.find({user: req.body.user})
@@ -109,6 +119,7 @@ exports.getHighscoreByUser = function(req, res, next) {
 		});
 };
 
+//Get user's top 20 scores
 exports.getUsersScores = function(req, res, next) {
 
 	Score
@@ -127,6 +138,7 @@ exports.getUsersScores = function(req, res, next) {
 	});
 }
 
+//Get user's username, email and top 20 scores for generating PDF
 exports.getUsernameEmailPoints = function(req, res, next) {
 
 	Score.find({user: req.body.user})
@@ -135,6 +147,8 @@ exports.getUsernameEmailPoints = function(req, res, next) {
 		.exec(function (err, list_score) {
 		  if(err) { console.log(err); res.send(); }
 		  var newlist = [];
+
+		  //Scores must be in list including list formed [points, temperature, date]
 		  list_score.forEach(function(score) {
 		  	newlist.push([score.value, score.temperature.toString(), score.date_formatted]);
 		  });
@@ -142,6 +156,7 @@ exports.getUsernameEmailPoints = function(req, res, next) {
 		});
 }
 
+//Removes all scores from database. Used in development. Cannot be accessed from client side
 exports.remove_all_scores = function() {
 	
 	console.log("Remove all scores");

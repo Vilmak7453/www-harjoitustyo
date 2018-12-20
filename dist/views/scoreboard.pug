@@ -1,33 +1,11 @@
 extends layout
 
 block content
-	h1=title
-
-	div(class="section col s10 m5")
-		h4 Top 10 maailma
-		table(class="responsive-table")
-			thead
-				tr
-					th Pisteet
-					th L&auml;mp&ouml;tila(&deg;C)
-					th K&auml;ytt&auml;j&auml;
-					th P&auml;iv&auml;m&auml;&auml;r&auml;
-			tbody
-				each score in score_list_world
-					tr
-						td #{score.value} 
-						td #{score.temperature}
-						if(score.user !== null)
-							td
-								a(href=score.url) #{score.user.name}
-						else
-							td Unknown
-						td #{score.date_formatted}
-
-	if((user !== undefined) && (user !== null))
-		div(class="section col s10 m5")
-			h4 Top 10 kaverit
-			table(class="responsive-table")
+	div.container.row
+		h1=title
+		div(class="col s12 l6")
+			h4 Top 10 maailma
+			table(class="")
 				thead
 					tr
 						th Pisteet
@@ -35,7 +13,7 @@ block content
 						th K&auml;ytt&auml;j&auml;
 						th P&auml;iv&auml;m&auml;&auml;r&auml;
 				tbody
-					each score in score_list_friends
+					each score in score_list_world
 						tr
 							td #{score.value} 
 							td #{score.temperature}
@@ -45,3 +23,25 @@ block content
 							else
 								td Unknown
 							td #{score.date_formatted}
+
+		if((user !== undefined) && (user !== null))
+			div(class="col s12 l6")
+				h4 Top 10 kaverit
+				table(class="")
+					thead
+						tr
+							th Pisteet
+							th L&auml;mp&ouml;tila(&deg;C)
+							th K&auml;ytt&auml;j&auml;
+							th P&auml;iv&auml;m&auml;&auml;r&auml;
+					tbody
+						each score in score_list_friends
+							tr
+								td #{score.value} 
+								td #{score.temperature}
+								if(score.user !== null)
+									td
+										a(href=score.url) #{score.user.name}
+								else
+									td Unknown
+								td #{score.date_formatted}

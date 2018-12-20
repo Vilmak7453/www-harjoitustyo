@@ -1,6 +1,7 @@
 "use strict";
 import request from 'superagent';
 
+//Component that shows found users. Clicking user's name takes user to that user's profile page
 Vue.component("result-component", {
 	props: ['result'],
 	template: '<li class="collection-item">' + 
@@ -21,7 +22,7 @@ var searchApp = new Vue({
 
 			this.errortext = "";
 			request
-		   	.get('/friend/searchFriendsWithName')
+		   	.get('/friend/auth/searchFriendsWithName')
 		   	.query({key: this.searchKey})
 		   	.then(res => {
 		   		this.results = [];
@@ -30,7 +31,7 @@ var searchApp = new Vue({
 			      		this.results.push({
 							name: res.body[i].name,
 							userID: res.body[i]._id,
-							url: "/profile/visit/" + res.body[i]._id
+							url: "/profile/visit/" + res.body[i]._id	//Set path for href
 						});
 			    	}
 		   	})
@@ -40,13 +41,14 @@ var searchApp = new Vue({
 		},
 		addFriend: function(result) {
 
+			//Send friend request
 			request
-			.post("/friend/sendFriendRequest")
+			.post("/friend/auth/sendFriendRequest")
 			.type("json")
 			.send({userID: result.userID})
 			.then((res) => {
 				if(res.body.msg !== undefined) {
-		        	this.search();
+		        	this.search();	//Do search again so this user will be removed from the list
 		        	this.errortext = res.body.msg;
 		        	return;
 				}

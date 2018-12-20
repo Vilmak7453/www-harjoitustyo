@@ -7,7 +7,7 @@ block content
 		h1=title
 
 		div(class="col m4")
-			form(method='POST' action='/profile/updateProfile')
+			form(method='POST' action='/profile/auth/updateProfile')
 				div.form-group
 					label(for='name') K&auml;ytt&auml;j&auml;tunnus:
 					input#name.form-control(type='text' placeholder='Gamer88' name='name' required='true' value=(undefined === name ? '' : name))

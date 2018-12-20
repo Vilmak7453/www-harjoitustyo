@@ -45,7 +45,10 @@ exports.register = [
                   name: req.body.name,
                   email: req.body.email
                 });
+
+            //Sets password in hashed form
             user.setPassword(req.body.password1);
+
             user.save(function (err) {
                 if (err) { 
                   if (err.name === 'MongoError' && err.code === 11000) {
@@ -54,6 +57,7 @@ exports.register = [
                   }
                   return next(err);
                 }
+
                 var value = "Token " + user.generateJWT();
                 req.session.authorization = value;
                 res.redirect("/game");
@@ -81,11 +85,15 @@ exports.login = [
           res.render('login', { title: 'Luo uusi käyttäjä', email: req.body.email , errors: errors.array() });
       }
       else {
+        //Authenticate the password. Takes password from req.body.password and email from req.body.email
         return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
           if(err) {
             console.log(err);
+            next(err);
           }
           if(passportUser) {
+            //Generate jsonwebtoken and store it in session where it can be used for authentication
+            //Token must be saved in form "Token odsif3249skfd"
             var value = "Token " + passportUser.generateJWT();
             req.session.authorization = value;
             res.redirect("/game");
@@ -98,6 +106,7 @@ exports.login = [
     }
 ];
 
+//Returns promise for receiving currently logged user
 exports.current = function(req, res, next) {
 
   if(req.payload === undefined)
@@ -138,65 +147,68 @@ exports.updateProfile = [
 
     // Process request after validation and sanitization.
     (req, res, next) => {
-      var authUser = this.current(req, res, next);
-      if(authUser !== null)
-        authUser.then(function(user) {
 
-          // Extract the validation errors from a request.
-          const errors = validationResult(req);
+      // Extract the validation errors from a request.
+      const errors = validationResult(req);
 
-          if (!errors.isEmpty()) {
-              // There are errors. Render form again with sanitized values/errors messages.
-              res.render('updateProfile', { title: 'Muokkaa profiilia', user: user, email: req.body.email, name: req.body.name, errors: errors.array()});
-              return;
+      if (!errors.isEmpty()) {
+          // There are errors. Render form again with sanitized values/errors messages.
+          res.render('updateProfile', { title: 'Muokkaa profiilia', user: req.body.user, email: req.body.email, name: req.body.name, errors: errors.array()});
+          return;
+      }
+      else {
+        var newEmail = req.body.email;
+        req.body.password = req.body.oldPassword;
+        //Use old email for authentication
+        req.body.email = req.body.user.email;
+
+        //Authenticate the password. Takes password from req.body.password and email from req.body.email
+        return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+          if(err) {
+            console.log(err);
+            next(err);
           }
-          else {
-            var newEmail = req.body.email;
-            req.body.password = req.body.oldPassword;
-            req.body.email = user.email;
+          if(passportUser) {
 
-            return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+            passportUser.email = newEmail;
+            passportUser.name = req.body.name;
+            if(req.body.password1 !== "") {
+              //Sets password in hashed form
+              passportUser.setPassword(req.body.password1);
+            }
+
+            User.findByIdAndUpdate(passportUser._id, passportUser, {}, function(err, theUser) {
               if(err) {
-                console.log(err);
-              }
-              if(passportUser) {
-                passportUser.email = newEmail;
-                passportUser.name = req.body.name;
-                if(req.body.password1 !== "") {
-                  passportUser.setPassword(req.body.password1);
+                if (err.name === 'MongoError' && err.code === 11000) {
+                  var error = {msg: "Sähköposti tai käyttäjätunnus on jo käytössä!"};
+                  res.render('updateProfile', {title: "Muokkaa profiilia", user: req.body.user, email: newEmail, name: req.body.name, errors: [error]}); 
+                  return;
                 }
-                User.findByIdAndUpdate(passportUser._id, passportUser, {}, function(err, theUser) {
-                  if(err) {
-                    if (err.name === 'MongoError' && err.code === 11000) {
-                      var error = {msg: "Sähköposti tai käyttäjätunnus on jo käytössä!"};
-                      res.render('updateProfile', {title: "Muokkaa profiilia", user: user, email: newEmail, name: req.body.name, errors: [error]}); 
-                      return;
-                    }
-                    return next(err);
-                  }
-                  res.redirect("/profile");
-                });
-                return;
+                return next(err);
               }
-              var error = {msg: info};
-              res.render('updateProfile', {title: "Muokkaa profiilia", user: user, email: newEmail, name: req.body.name, errors: [error]});
-              return;
-            })(req, res, next);
+              res.redirect("/profile");
+            });
+            return;
           }
-        });
-      else
-        res.redirect('/user/login');
+          var error = {msg: info};
+          res.render('updateProfile', {title: "Muokkaa profiilia", user: req.body.user, email: newEmail, name: req.body.name, errors: [error]});
+          return;
+        })(req, res, next);
+      }
     }
 ];
 
+//Get data about user that is visited
 exports.visitProfile = function(req, res, next) {
 
   var visitUserID = req.params.id;
-  console.log(visitUserID);
 
+  //find visited user
   User
   .findById(visitUserID)
   .then((visitUser) => {
+
+    //Find and calculate visited user's statistics
     Score
     .aggregate([{
       $match: {
@@ -205,17 +217,18 @@ exports.visitProfile = function(req, res, next) {
     },{
       $group: {
         _id: null,
-        averageValue: {$avg: "$value"},
-        averageTemperature: {$avg: "$temperature"},
-        maxValue: {$max: "$value"},
-        minTemperature: {$min: "$temperature"},
-        maxTemperature: {$max: "$temperature"},
-        count: {$sum: 1}
+        averageValue: {$avg: "$value"}, //Average score
+        averageTemperature: {$avg: "$temperature"}, //average temperature
+        maxValue: {$max: "$value"}, //highscore
+        minTemperature: {$min: "$temperature"}, //Lowest measured temperature
+        maxTemperature: {$max: "$temperature"}, //Highest measured temperature
+        count: {$sum: 1} //Played games
       }
     }])
     .exec(function(err, list_stats) {
         if (err) { console.log(err); return next(err); }
 
+        //Save calculated values with relevant names
         var statList = [];
         statList.push({
           name: "Paras tulos",
@@ -242,6 +255,7 @@ exports.visitProfile = function(req, res, next) {
           value: list_stats[0].maxTemperature.toString()
         });
         
+        //Find visited user's 20 best scores
         Score
         .find({user: visitUser})
         .sort([["value", "descending"]])

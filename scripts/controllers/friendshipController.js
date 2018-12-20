@@ -2,11 +2,13 @@
 var Friendship = require('../models/friendship');
 var User = require('../models/user');
 
+//Search for new friends with piece of username
 exports.searchFriendsWithName = function(req, res, next) {
 
 	var key = req.query.key;
 	var user = req.body.user;
 
+	//Find users that logged user have already send request or is already friends with
 	Friendship
 	.find({$or:[{user1: user._id}, {user2: user._id}]})
 	.where({accepted1: true})
@@ -14,7 +16,6 @@ exports.searchFriendsWithName = function(req, res, next) {
 	.exec(function(err, list_friendships) {
 		if(err) { console.log(err); res.send(); }
 
-		//Find all friends
 		var friendList = [];
 		list_friendships.forEach(function(friend) {
 			var user1ID = friend.user1._id.toString();
@@ -24,23 +25,23 @@ exports.searchFriendsWithName = function(req, res, next) {
 			else
 				friendList.push({name: friend.user2.name});
 		});
-		friendList.push({name: user.name});
+		friendList.push({name: user.name});	//Add also logged user so they are not shown in the results
 
-		//Find all users that match keyword
+		//Find max 20 users that match keyword
 		User.find({name:{ "$regex": key, "$options": "i" }})
 		.limit(20)
 		.select('name')
 		.exec(function (err, list_user) {
-			if(err) { console.log(err); res.send(); }
+			if(err) { console.log(err); next(err); }
+
 			var list = [];
-			console.log(list_user);
-			console.log(list);
-			console.log(friendList);
 			var remove;
+			//Go through find users
 			list_user.forEach(function(user) {
 				remove = 0;
+
+				//Go through friends and don't add them to results
 				for(var friend of friendList) {
-					console.log(user.name + "  " + friend.name);
 					if(user.name.match(friend.name)) {
 						remove = 1;
 						break;
@@ -52,12 +53,12 @@ exports.searchFriendsWithName = function(req, res, next) {
 			res.send(list);
 		});
 	});
-
 }
 
 exports.sendFriendRequest = function(req, res, next) {
 
 	var user1 = req.body.user;
+	//Find user to which logged user is sending request
 	User.findById(req.body.userID, function(err, user2) {
 
 		var friendship = new Friendship( {
@@ -78,6 +79,8 @@ exports.getFriendRequests = function(req, res, next) {
 
 	var user1 = req.body.user;
 	var id = user1._id;
+
+	//Find friend request where logged user is the user request is sent and check that it haven't been accepted
 	Friendship
 	.find({ 'user2': id })
 	.where({'accepted2': false})
@@ -105,9 +108,11 @@ exports.acceptFriend = function(req, res, next) {
 	});
 }
 
+//Find user's friends
 exports.getFriends = function(req, res, next) {
 
 	var user = req.body.user;
+	//Only friendships that have been accepted by both users are fetched
 	Friendship
 	.find({$or:[{user1: user._id}, {user2: user._id}]})
 	.where({accepted1: true, accepted2:true})
@@ -118,6 +123,7 @@ exports.getFriends = function(req, res, next) {
 		var list = [];
 		list_friendships.forEach(function(friend) {
 			var user1ID = friend.user1._id.toString();
+			//If logged user is not user1, then the friend is
 			if(!user1ID.match(user._id))
 				list.push({name: friend.user1.name, ID: friend.user1._id});
 			else

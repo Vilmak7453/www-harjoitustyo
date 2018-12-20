@@ -5,22 +5,9 @@ block head
 
 block content
 
-	div(id="chat", class="container")
-		div(class="section col s2")
-			ul(class="sidebar-nav")
-				li Keskustelusi
+	div(id="chat", class="container row")
 
-				conversation-component(
-					v-for="con in conversations", 
-					v-bind:conversation="con", 
-					v-bind:key="con.id",
-					v-on:open-conversation="openConversation(con)"
-				)
-
-				li(style="margin-top: 1rem")
-					form(method='GET', action='/chat/createConversation')
-						button.btn.btn-primary(type='submit') Luo uusi ryhm&auml;
-		div(class="section col" v-if="selectedConversation")
+		div(class="col s12 m10" v-if="selectedConversation")
 			h4 {{ selectedConversation.groupName }}
 			ul
 				message-component(
@@ -33,6 +20,24 @@ block content
 				div(class="input-field")
 					input(class="col", type="text", v-model="newMessage")
 					span(class="col btn", v-on:click="sendMessage") L&auml;het&auml;
+			div(class="section row")
+				div(class="col")
+					p {{ errorText }}
+
+		div(class="col s12 m2")
+			ul(class="sidebar-nav")
+				li Keskustelusi
+
+				conversation-component(
+					v-for="con in conversations", 
+					v-bind:conversation="con", 
+					v-bind:key="con.id",
+					v-on:open-conversation="openConversation(con)"
+				)
+
+				li(style="margin-top: 1rem")
+					form(method='GET', action='/chat/auth/createConversation')
+						button.btn.btn-primary(type='submit') Luo uusi ryhm&auml;
 
 
 	script(type="text/javascript", src="../chat.js")

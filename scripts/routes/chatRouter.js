@@ -6,65 +6,46 @@ var auth = require('./auth');
 var userController = require('../controllers/userController');
 var chatController = require('../controllers/chatController');
 
-router.get('/', auth.required, function(req, res, next) {
+router.get("/", function(req, res, next) {
 
-	var authUser = userController.current(req, res, next);
-	if(authUser !== null)
-		authUser.then(function(user) {
-			res.render('chat', {title: "Keskustelut", user: user});
-		});
-	else
-		res.redirect('/user/login');
+	res.redirect("/chat/auth");
 });
 
-router.get('/getConversations', auth.required, function(req, res, next) {
+//General path for authentication in chat paths
+router.use("/auth", auth.required, function(req, res, next) {
 
+	//get promise if user is logged in and authorized
 	var authUser = userController.current(req, res, next);
 	if(authUser !== null)
-		authUser.then(function(user) {
+		authUser.then((user) => { 
 			req.body.user = user;
-			chatController.getConversations(req, res, next);
+			next();
 		});
 	else
-		res.redirect('/user/login');
+		res.redirect("/user/login");
 });
 
-router.get('/createConversation', auth.required, function(req, res, next) {
+router.get('/auth', function(req, res, next) {
 
-	var authUser = userController.current(req, res, next);
-	if(authUser !== null)
-		authUser.then(function(user) {
-			req.body.user = user;
-			chatController.renderConversation(req, res, next);
-		});
-	else
-		res.redirect('/user/login');
+	res.render('chat', {title: "Keskustelut", user: req.body.user});
 });
 
-router.post('/createConversation', auth.required, chatController.createConversation);
+//Fetch user's conversations/groups
+router.get('/auth/getConversations', chatController.getConversations);
 
-router.post('/sendMessage', auth.required, function(req, res, next) {
+router.get('/auth/createConversation', chatController.renderConversation);
 
-	var authUser = userController.current(req, res, next);
-	if(authUser !== null)
-		authUser.then(function(user) {
-			req.body.user = user;
-			chatController.sendMessage(req, res, next);
-		});
-	else
-		res.redirect('/user/login');
-});
+router.post('/auth/createConversation', chatController.createConversation);
 
-router.get('/getMessages', auth.required, function(req, res, next) {
+router.post('/auth/sendMessage', chatController.sendMessage);
 
-	var authUser = userController.current(req, res, next);
-	if(authUser !== null)
-		authUser.then(function(user) {
-			req.body.user = user;
-			chatController.getMessages(req, res, next);
-		});
-	else
-		res.redirect('/user/login');
+//Get messages for picked conversation
+router.get('/auth/getMessages', chatController.getMessages);
+
+//Get current user's username
+router.get('/auth/getCurrentUsername', function(req, res, next) {
+
+	res.send({username: req.body.user.name});
 });
 
 module.exports = router;

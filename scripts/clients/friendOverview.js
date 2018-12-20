@@ -1,6 +1,8 @@
 "use strict";
 import request from 'superagent';
 
+
+//Component that shows friend requests that have been send to logged user and not yet accepted
 Vue.component("request-component", {
 	props: ['request'],
 	template: '<li class="collection-item">' + 
@@ -9,6 +11,7 @@ Vue.component("request-component", {
 			'<i class="material-icons">person_add</i></a></div></li>'
 })
 
+//Shows friends
 Vue.component("friend-component", {
 	props: ['friend'],
 	template: '<li class="collection-item">' + 
@@ -26,14 +29,14 @@ var overviewApp = new Vue({
 
 		this.errortext = "";
 		request
-		.get('/friend/getFriendRequests')
+		.get('/friend/auth/getFriendRequests')
 		.then(res => {
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.friendRequests.push({
 						name: res.body[i].name,
 						userID: res.body[i].userID,
-						url: "/profile/visit/" + res.body[i].userID
+						url: "/profile/visit/" + res.body[i].userID //Set url to user's profile page for href
 					});
 		      	}
 		  	}
@@ -43,13 +46,13 @@ var overviewApp = new Vue({
    		});
 
    		request
-		.get('/friend/getFriends')
+		.get('/friend/auth/getFriends')
 		.then(res => {
 	   		if(res.body !== undefined) {
 		    	for(var i = 0; i < res.body.length; i++) {
 	      			this.friends.push({
 						name: res.body[i].name,
-						url: "/profile/visit/" + res.body[i].ID
+						url: "/profile/visit/" + res.body[i].ID //Set url to user's profile page for href
 					});
 		      	}
 		  	}
@@ -61,8 +64,9 @@ var overviewApp = new Vue({
 	methods: {
 		acceptFriend: function(req) {
 
+			//Accept friend request
 			request
-			.post('/friend/acceptFriend')
+			.post('/friend/auth/acceptFriend')
 			.type("json")
 			.send({newFriendID: req.userID})
 			.then((res) => {
@@ -70,6 +74,7 @@ var overviewApp = new Vue({
 					this.friends.push({
 						name: req.name
 					});
+					//Remove request from list
 					for(var i = 0; i < this.friendRequests.length; i++) {
 						if(this.friendRequests[i].name.match(req.name)) {
 							this.friendRequests.splice(i, 1);
@@ -80,13 +85,6 @@ var overviewApp = new Vue({
 		        	return;
 				}
 			});
-		},
-		visitFriend: function(friend) {
-
-			request
-			.get('/profile/' + friend.ID)
-			.end();
 		}
 	}
-
 })

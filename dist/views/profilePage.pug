@@ -6,7 +6,7 @@ block head
 block content
 	div(id="profile", class="container")
 		div.row(style="display: inline-block")
-			form.col(method='GET' action='/profile/updateProfile')
+			form.col(method='GET' action='/profile/auth/updateProfile')
 				h4=user.name
 					button(class="btn-small waves-effect waves-light orange" type="submit" style="margin-left:1rem") 
 						<i class="material-icons">edit</i>
@@ -18,7 +18,7 @@ block content
 		p="Sähköposti: " + user.email
 
 		div(class="section row")
-			div(class="flow-text col m5 s12")
+			div(class="flow-text col m6 s12")
 				ul(style="font-size:1rem")
 					li
 						h5 Omat tilastot
@@ -27,9 +27,9 @@ block content
 						v-bind:statistic="stat", 
 						v-bind:key="stat.id"
 					)
-			div(class="section col m5 s12")
+			div(class="section col m6 s12")
 				h5 Omat top 20
-				table(class="responsive-table")
+				table
 					thead
 						tr
 							th Pisteet

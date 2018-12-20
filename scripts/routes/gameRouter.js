@@ -43,11 +43,4 @@ router.get("/scoreboard", auth.optional, function(req, res, next) {
 		scoreController.score_list(req, res, next);
 });
 
-router.get("/removeAllScores", function(req, res, next) {
-	
-	scoreController.remove_all_scores();
-	res.redirect("/game/scoreboard");
-});
-
-
 module.exports = router;

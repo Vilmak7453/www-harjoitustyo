@@ -36,7 +36,6 @@ app.use(session({
 
 //Set mongoose connection
 var mongoose = require('mongoose');
-//var mongoDB = 'mongodb://localhost:27017/hoyry';
 var mongoDB = 'mongodb://192.168.99.100:27017/hoyry';
 mongoose.connect(mongoDB);
 mongoose.set('debug',true);
@@ -52,13 +51,16 @@ app.get('/', (req, res, next) => {
   res.redirect('/user');
 });
 
+//Fetch apikey for ilmatieteenlaiton from environment variables
 app.get('/apiKey', function(req, res, next) {
 
+  process.env.WEATHER_API_KEY = "d6762584-4226-408f-a689-901b30744397";
   if(process.env.WEATHER_API_KEY === undefined)
     process.env.WEATHER_API_KEY = "";
   res.send({apikey: process.env.WEATHER_API_KEY})
 });
 
+//Connect routers with correct paths
 app.use('/game', gameRouter);
 app.use('/user', userRouter);
 app.use('/profile', profileRouter);

@@ -27,6 +27,8 @@ router.post('/login', userController.login);
 router.get('/current', auth.required, userController.current);
 
 router.get('/logout', (req, res, next) => {
+
+	//session.authorization is used to keep track of which user is logged in
 	req.session.authorization = null;
 	res.redirect('/user/login');
 });

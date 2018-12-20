@@ -24,6 +24,7 @@ UserSchema.methods.validatePassword = function(password) {
   return this.hash === hash;
 };
 
+//Token that is used for authentication
 UserSchema.methods.generateJWT = function() {
   const today = new Date();
   const expirationDate = new Date(today);
