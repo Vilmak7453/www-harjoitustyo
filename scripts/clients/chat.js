@@ -113,6 +113,8 @@ var chatApp = new Vue({
 				return;
 			}
 			for(i = 0; i < this.messages.length; i++) {
+				console.log((new Date(this.messages[i].date)).getTime());
+				console.log((new Date(this.latestUpdate)).getTime());
 				if((new Date(this.messages[i].date)).getTime() > (new Date(this.latestUpdate)).getTime())
 					break;
 			}
